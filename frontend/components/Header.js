@@ -40,7 +40,7 @@ export default function Header({ onBookClick }) {
 const styles = {
   header: {
     position: 'absolute',
-    top: 10,
+    top: 34,
     left: 0,
     right: 0,
     display: 'flex',
