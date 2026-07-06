@@ -277,9 +277,14 @@ section {
     justify-content: center !important;
     align-items: center !important;
     text-align: center !important;
+    align-self: stretch !important;
+    justify-self: stretch !important;
     width: 100% !important;
+    height: 100% !important;
     padding: 0 12px !important;
+    transform: translateY(80px) !important;
     pointer-events: none !important;
+    z-index: 5 !important;
   }
 
   /* expose children of right column and bottom block into wrapper grid */

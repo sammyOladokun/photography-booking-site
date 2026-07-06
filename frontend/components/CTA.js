@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function CTA({ onBookClick }) {
   return (
     <section style={styles.section}>
@@ -19,7 +21,7 @@ export default function CTA({ onBookClick }) {
             <br />
             <em style={{fontStyle: 'italic', fontFamily: "'Pinyon Script', cursive", fontSize: 32, fontWeight: 400}}>high-end</em> VISUALS
           </h2>
-          <button style={styles.button} onClick={onBookClick}>RESERVE YOUR SPOT</button>
+          <Link href="/book" style={styles.button}>RESERVE YOUR SPOT</Link>
         </div>
         <div style={styles.imageRightWrapper}>
           <img

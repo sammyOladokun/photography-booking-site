@@ -5,10 +5,10 @@ export default function Footer() {
         <div style={styles.brand}>
           <h3 style={styles.brandName}>NAVIGATE</h3>
           <div style={styles.navLinks}>
-            <a href="#home">HOME</a>
-            <a href="#portfolio">PORTFOLIO</a>
-            <a href="#about">ABOUT</a>
-            <a href="#contact">CONTACT</a>
+            <a href="/">HOME</a>
+            <a href="/portfolio">PORTFOLIO</a>
+            <a href="/about">ABOUT</a>
+            <a href="/book">CONTACT</a>
           </div>
         </div>
 

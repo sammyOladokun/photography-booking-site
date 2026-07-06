@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Link from 'next/link'
 
-export default function Header({ onBookClick }) {
+export default function Header() {
   const [open, setOpen] = useState(false)
 
   return (
@@ -9,7 +10,7 @@ export default function Header({ onBookClick }) {
         <div style={styles.leftSlot} />
         <div style={styles.logo} className="header-logo">Lb</div>
         <div style={styles.rightSlot}>
-          <button style={styles.bookBtn} onClick={onBookClick}>Book</button>
+          <Link href="/book" style={styles.bookBtn}>Book</Link>
           <button aria-label="Menu" style={styles.menuBtn} onClick={() => setOpen(true)}>
             <svg width="22" height="22" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="40" y="56" width="176" height="16" rx="8" fill="#fff" />
@@ -25,10 +26,10 @@ export default function Header({ onBookClick }) {
           <div style={styles.menuContent} onClick={e => e.stopPropagation()} className="menu-content">
             <button style={styles.closeMenu} onClick={() => setOpen(false)}>✕</button>
             <nav style={styles.menuNav} className="menu-nav">
-              <a href="#home">HOME</a>
-              <a href="#portfolio">PORTFOLIO</a>
-              <a href="#about">ABOUT</a>
-              <a href="#contact">CONTACT</a>
+              <a href="/">HOME</a>
+              <a href="/portfolio">PORTFOLIO</a>
+              <a href="/about">ABOUT</a>
+              <a href="/book">CONTACT</a>
             </nav>
           </div>
         </div>
@@ -40,7 +41,7 @@ export default function Header({ onBookClick }) {
 const styles = {
   header: {
     position: 'absolute',
-    top: 34,
+    top: 0,
     left: 0,
     right: 0,
     display: 'flex',
@@ -63,9 +64,13 @@ const styles = {
     textShadow: '0 1px 0 rgba(0,0,0,0.6)'
   },
   bookBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     background: 'rgba(255,255,255,0.14)',
     border: '1px solid rgba(255,255,255,0.26)',
     backdropFilter: 'blur(8px)',
+    color: '#fff',
   },
   menuBtn: {
     background: 'transparent',
