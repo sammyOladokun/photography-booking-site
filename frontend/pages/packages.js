@@ -261,6 +261,26 @@ export default function PackagesPage() {
             grid-template-columns: 1fr;
             text-align: center;
             gap: 28px;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+
+          .footerColumnLeft,
+          .footerColumnRight {
+            width: 100%;
+            border-left: 0;
+            border-right: 0;
+          }
+
+          .footerColumnLeft {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+          }
+
+          .footerNav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
           }
 
           .footer-center {

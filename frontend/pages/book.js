@@ -66,7 +66,47 @@ const footerCards = [
   '/images/commercialframe.jpeg',
 ]
 
+const weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+
+function formatDisplayDate(value) {
+  if (!value) return 'Select a date'
+
+  const parsed = new Date(`${value}T00:00:00`)
+  return parsed.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+function getMonthStart(value) {
+  const monthStart = new Date(value)
+  monthStart.setDate(1)
+  monthStart.setHours(0, 0, 0, 0)
+  return monthStart
+}
+
+function buildCalendarDays(monthStart) {
+  const startDay = monthStart.getDay()
+  const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0).getDate()
+  const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7
+
+  return Array.from({ length: totalCells }, (_, index) => {
+    const dayNumber = index - startDay + 1
+    if (dayNumber < 1 || dayNumber > daysInMonth) return null
+
+    const date = new Date(monthStart)
+    date.setDate(dayNumber)
+    return date
+  })
+}
+
 export default function BookPage() {
+  const [isMobile, setIsMobile] = useState(false)
+  const [isPackageMenuOpen, setIsPackageMenuOpen] = useState(false)
+  const [isDateMenuOpen, setIsDateMenuOpen] = useState(false)
+  const [calendarMonth, setCalendarMonth] = useState(() => getMonthStart(new Date()))
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -88,7 +128,47 @@ export default function BookPage() {
     [packageId],
   )
 
+  const calendarDays = useMemo(() => buildCalendarDays(calendarMonth), [calendarMonth])
+  const formattedSelectedDate = useMemo(() => formatDisplayDate(selectedDate), [selectedDate])
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)')
+
+    const handleChange = () => setIsMobile(mediaQuery.matches)
+
+    handleChange()
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange)
+      return () => mediaQuery.removeEventListener('change', handleChange)
+    }
+
+    mediaQuery.addListener(handleChange)
+    return () => mediaQuery.removeListener(handleChange)
+  }, [])
+
+  useEffect(() => {
+    if (selectedDate) {
+      setCalendarMonth(getMonthStart(new Date(`${selectedDate}T00:00:00`)))
+    }
+  }, [selectedDate])
+
   const today = new Date().toISOString().slice(0, 10)
+
+  function moveCalendarMonth(offset) {
+    setCalendarMonth((currentMonth) => {
+      const nextMonth = new Date(currentMonth)
+      nextMonth.setMonth(nextMonth.getMonth() + offset)
+      return getMonthStart(nextMonth)
+    })
+  }
+
+  function pickDate(date) {
+    const isoDate = date.toISOString().slice(0, 10)
+    setSelectedDate(isoDate)
+    setSelectedSlot('')
+    setIsDateMenuOpen(false)
+  }
 
   useEffect(() => {
     async function loadAvailability() {
@@ -213,10 +293,17 @@ export default function BookPage() {
       </Head>
 
       <main style={styles.page}>
-        <section className="book-page-hero" style={styles.hero}>
+        <section
+          className="book-page-hero"
+          style={{ ...styles.hero, ...(isMobile ? styles.heroMobile : {}) }}
+        >
           <Header showBookButton={false} showLogo={false} compact showShell={false} />
 
-          <div className="book-page-visual" style={styles.visualPane} aria-hidden="true">
+          <div
+            className="book-page-visual"
+            style={{ ...styles.visualPane, ...(isMobile ? styles.visualPaneMobile : {}) }}
+            aria-hidden="true"
+          >
             <div style={styles.texture} />
             <img src="/images/hero2.jpg" alt="" style={styles.visualImage} />
             <div style={styles.visualShade} />
@@ -225,8 +312,11 @@ export default function BookPage() {
             <Link href="/" style={styles.heroBrand} aria-label="Home">Lb</Link>
           </div>
 
-          <div className="book-page-form" style={styles.formPane}>
-            <div className="intro" style={styles.intro}>
+          <div
+            className="book-page-form"
+            style={{ ...styles.formPane, ...(isMobile ? styles.formPaneMobile : {}) }}
+          >
+            <div className="intro" style={{ ...styles.intro, ...(isMobile ? styles.introMobile : {}) }}>
               <p style={styles.kicker}>Private booking request</p>
               <h1 className="title" style={styles.title}>RESERVE</h1>
               <p className="lede" style={styles.lede}>
@@ -234,7 +324,7 @@ export default function BookPage() {
               </p>
             </div>
 
-            <div className="book-page-steps steps" style={styles.steps}>
+            <div className="book-page-steps steps" style={{ ...styles.steps, ...(isMobile ? styles.stepsMobile : {}) }}>
               {bookingSteps.map((step, index) => (
                 <div className="stepCard" key={step.title} style={styles.stepCard}>
                   <p style={styles.stepIndex}>0{index + 1}</p>
@@ -244,8 +334,11 @@ export default function BookPage() {
               ))}
             </div>
 
-            <form onSubmit={handleSubmit} style={styles.form}>
-              <div className="selectionSummary" style={styles.selectionSummary}>
+            <form onSubmit={handleSubmit} style={{ ...styles.form, ...(isMobile ? styles.formMobile : {}) }}>
+              <div
+                className="selectionSummary"
+                style={{ ...styles.selectionSummary, ...(isMobile ? styles.selectionSummaryMobile : {}) }}
+              >
                 <div>
                   <p style={styles.selectionLabel}>PACKAGE</p>
                   <p style={styles.selectionValue}>{selectedPackage.title}</p>
@@ -295,26 +388,120 @@ export default function BookPage() {
 
               <label style={styles.field}>
                 <span style={styles.label}>PACKAGE</span>
-                <select style={styles.inputBase} value={packageId} onChange={(event) => setPackageId(Number(event.target.value))}>
-                  {packages.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.title}
-                    </option>
-                  ))}
-                </select>
+                <div style={styles.dropdownWrap}>
+                  <button
+                    type="button"
+                    style={styles.dropdownButton}
+                    onClick={() => setIsPackageMenuOpen((current) => !current)}
+                    aria-haspopup="listbox"
+                    aria-expanded={isPackageMenuOpen}
+                  >
+                    <span style={styles.dropdownButtonMain}>
+                      <span style={styles.dropdownButtonTitle}>{selectedPackage.title}</span>
+                      <span style={styles.dropdownButtonMeta}>{selectedPackage.duration} HOURS · {selectedPackage.price}</span>
+                    </span>
+                    <span style={styles.dropdownChevron}>{isPackageMenuOpen ? '−' : '+'}</span>
+                  </button>
+
+                  {isPackageMenuOpen && (
+                    <div role="listbox" aria-label="Package options" style={styles.dropdownMenu}>
+                      {packages.map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          role="option"
+                          aria-selected={Number(packageId) === option.id}
+                          style={{
+                            ...styles.dropdownOption,
+                            ...(Number(packageId) === option.id ? styles.dropdownOptionSelected : {}),
+                          }}
+                          onClick={() => {
+                            setPackageId(option.id)
+                            setIsPackageMenuOpen(false)
+                          }}
+                        >
+                          <span style={styles.dropdownOptionTitle}>{option.title}</span>
+                          <span style={styles.dropdownOptionMeta}>
+                            {option.duration} HOURS · {option.price}
+                          </span>
+                          <span style={styles.dropdownOptionCopy}>{option.summary}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </label>
 
               <div className="calendar-grid" style={styles.calendarGrid}>
                 <label style={styles.field}>
                   <span style={styles.label}>PREFERRED DATE</span>
-                  <input
-                    style={styles.inputBase}
-                    type="date"
-                    min={today}
-                    value={selectedDate}
-                    onChange={(event) => setSelectedDate(event.target.value)}
-                    required
-                  />
+                  <div style={styles.dropdownWrap}>
+                    <button
+                      type="button"
+                      style={styles.dropdownButton}
+                      onClick={() => setIsDateMenuOpen((current) => !current)}
+                      aria-haspopup="dialog"
+                      aria-expanded={isDateMenuOpen}
+                    >
+                      <span style={styles.dropdownButtonMain}>
+                        <span style={styles.dropdownButtonTitle}>{formattedSelectedDate}</span>
+                        <span style={styles.dropdownButtonMeta}>Availability checks update after selection</span>
+                      </span>
+                      <span style={styles.dropdownChevron}>{isDateMenuOpen ? '−' : '+'}</span>
+                    </button>
+
+                    {isDateMenuOpen && (
+                      <div role="dialog" aria-label="Date picker" style={styles.calendarPopover}>
+                        <div style={styles.calendarHeader}>
+                          <button type="button" style={styles.calendarNavButton} onClick={() => moveCalendarMonth(-1)}>
+                            ←
+                          </button>
+                          <p style={styles.calendarMonthLabel}>
+                            {calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                          </p>
+                          <button type="button" style={styles.calendarNavButton} onClick={() => moveCalendarMonth(1)}>
+                            →
+                          </button>
+                        </div>
+
+                        <div style={styles.weekdayRow}>
+                          {weekdayLabels.map((label) => (
+                            <span key={label} style={styles.weekdayLabel}>
+                              {label}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div style={styles.calendarGridMonth}>
+                          {calendarDays.map((date, index) => {
+                            if (!date) {
+                              return <span key={`empty-${index}`} style={styles.calendarBlank} />
+                            }
+
+                            const isoDate = date.toISOString().slice(0, 10)
+                            const isPast = isoDate < today
+                            const isSelected = selectedDate === isoDate
+
+                            return (
+                              <button
+                                key={isoDate}
+                                type="button"
+                                disabled={isPast}
+                                style={{
+                                  ...styles.calendarDay,
+                                  ...(isPast ? styles.calendarDayDisabled : {}),
+                                  ...(isSelected ? styles.calendarDaySelected : {}),
+                                }}
+                                onClick={() => !isPast && pickDate(date)}
+                              >
+                                {date.getDate()}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </label>
 
                 <div style={styles.field}>
@@ -382,8 +569,15 @@ export default function BookPage() {
           </div>
         </section>
 
-        <section id="footer" className="book-page-footer" style={styles.footer}>
-          <div className="footerColumnLeft" style={styles.footerColumnLeft}>
+        <section
+          id="footer"
+          className="book-page-footer"
+          style={{ ...styles.footer, ...(isMobile ? styles.footerMobile : {}) }}
+        >
+          <div
+            className="footerColumnLeft"
+            style={{ ...styles.footerColumnLeft, ...(isMobile ? styles.footerColumnMobile : {}) }}
+          >
             <h2 className="footerHeading" style={styles.footerHeading}>PACKAGES</h2>
             <div style={styles.packageList}>
               {packageHighlights.map((item) => (
@@ -396,7 +590,7 @@ export default function BookPage() {
             </div>
           </div>
 
-          <div style={styles.footerCenter}>
+          <div style={{ ...styles.footerCenter, ...(isMobile ? styles.footerCenterMobile : {}) }}>
             <div style={styles.cardStack}>
               {footerCards.map((src, index) => (
                 <div
@@ -414,11 +608,14 @@ export default function BookPage() {
             </div>
           </div>
 
-          <div className="footerColumnRight" style={styles.footerColumnRight}>
+          <div
+            className="footerColumnRight"
+            style={{ ...styles.footerColumnRight, ...(isMobile ? styles.footerColumnMobile : {}) }}
+          >
             <p style={styles.footerCopy}>
               Availability is limited and every booking is handled with careful planning, secure payment, and clear communication.
             </p>
-            <nav className="footerNav" style={styles.footerNav}>
+            <nav className="footerNav" style={{ ...styles.footerNav, ...(isMobile ? styles.footerNavMobile : {}) }}>
               <a href="/">HOME</a>
               <a href="/#collections">GALLERY</a>
               <a href="/#about">ABOUT</a>
@@ -453,6 +650,26 @@ export default function BookPage() {
             grid-template-columns: 1fr;
             gap: 28px;
             text-align: center;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+
+          .book-page-footer .footerColumnLeft,
+          .book-page-footer .footerColumnRight {
+            width: 100%;
+            border-left: 0;
+            border-right: 0;
+          }
+
+          .book-page-footer .footerColumnLeft {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+          }
+
+          .book-page-footer .footerNav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
           }
 
           .footer-center {
@@ -505,13 +722,38 @@ export default function BookPage() {
         }
 
         @media (max-width: 640px) {
+          .book-page-hero {
+            grid-template-columns: 1fr !important;
+            min-height: auto;
+          }
+
+          .book-page-visual {
+            display: none !important;
+          }
+
           .book-page-form {
-            padding: 20px 18px 32px 18px !important;
+            width: 100%;
+            min-height: auto;
+            padding: 24px 18px 40px 18px !important;
           }
 
           .book-page-form .topBar {
             padding: 0;
             margin-bottom: 4px;
+          }
+
+          .book-page-form .intro {
+            max-width: 100% !important;
+            margin-top: 0;
+          }
+
+          .book-page-form .form {
+            max-width: 100% !important;
+          }
+
+          .book-page-form .steps {
+            max-width: 100% !important;
+            width: 100%;
           }
 
           .book-page-form .title {
@@ -533,6 +775,8 @@ export default function BookPage() {
             grid-template-columns: 1fr;
             gap: 12px;
             padding-top: 14px;
+            max-width: 100% !important;
+            width: 100%;
           }
 
           .book-page-form .book-page-row,
@@ -593,7 +837,7 @@ export default function BookPage() {
           }
 
           .book-page-footer .footerNav {
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             justify-content: center;
           }
 
@@ -629,11 +873,18 @@ const styles = {
     minHeight: '100vh',
     alignItems: 'stretch',
   },
+  heroMobile: {
+    gridTemplateColumns: '1fr',
+    minHeight: 'auto',
+  },
   visualPane: {
     position: 'relative',
     overflow: 'hidden',
     background: '#111',
     minHeight: '100vh',
+  },
+  visualPaneMobile: {
+    display: 'none',
   },
   heroBrand: {
     position: 'absolute',
@@ -701,6 +952,11 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
+  formPaneMobile: {
+    width: '100%',
+    minHeight: 'auto',
+    padding: '24px 18px 40px 18px',
+  },
   topBar: {
     display: 'flex',
     alignItems: 'center',
@@ -739,12 +995,20 @@ const styles = {
     maxWidth: 440,
     marginTop: 0,
   },
+  introMobile: {
+    maxWidth: '100%',
+    marginTop: 0,
+  },
   steps: {
     display: 'grid',
     gap: 18,
     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     marginTop: 28,
     maxWidth: 560,
+  },
+  stepsMobile: {
+    maxWidth: '100%',
+    width: '100%',
   },
   stepCard: {
     borderTop: '1px solid rgba(255,255,255,0.18)',
@@ -793,6 +1057,10 @@ const styles = {
     gap: 28,
     maxWidth: 510,
   },
+  formMobile: {
+    maxWidth: '100%',
+    width: '100%',
+  },
   selectionSummary: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
@@ -800,6 +1068,10 @@ const styles = {
     padding: '18px 0 6px',
     borderTop: '1px solid rgba(255,255,255,0.14)',
     borderBottom: '1px solid rgba(255,255,255,0.14)',
+  },
+  selectionSummaryMobile: {
+    maxWidth: '100%',
+    width: '100%',
   },
   selectionLabel: {
     fontSize: 10,
@@ -949,6 +1221,11 @@ const styles = {
     color: '#2c2a28',
     borderTop: '1px solid rgba(0,0,0,0.15)',
   },
+  footerMobile: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 22,
+  },
   footerColumnLeft: {
     padding: '96px 72px',
     borderRight: '1px solid rgba(0,0,0,0.45)',
@@ -956,6 +1233,13 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'center',
     minHeight: 360,
+  },
+  footerColumnMobile: {
+    width: '100%',
+    borderLeft: 0,
+    borderRight: 0,
+    minHeight: 'auto',
+    padding: '32px 18px',
   },
   footerColumnRight: {
     padding: '96px 72px',
@@ -977,6 +1261,12 @@ const styles = {
     gap: '18px 38px',
     fontSize: 15,
     letterSpacing: 1.2,
+  },
+  footerNavMobile: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 12,
   },
   packageList: {
     display: 'grid',
@@ -1013,6 +1303,9 @@ const styles = {
     justifyContent: 'center',
     minHeight: 360,
     overflow: 'hidden',
+  },
+  footerCenterMobile: {
+    display: 'none',
   },
   cardStack: {
     position: 'relative',
