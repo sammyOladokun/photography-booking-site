@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import Header from '../components/Header'
 
 const featuredTiles = [
   '/images/portfolio/feature-1.jpeg',
@@ -34,20 +35,12 @@ export default function PortfolioPage() {
 
       <main style={styles.page}>
         <section className="portfolio-hero" style={styles.hero}>
-          <div className="topBar" style={styles.topBar}>
-            <Link href="/" className="brand" style={styles.brand}>Lb</Link>
-            <a href="/book" style={styles.explore}>
-              <span style={styles.exploreIcon} aria-hidden="true">
-                <span style={styles.exploreBar} />
-                <span style={styles.exploreBar} />
-              </span>
-              EXPLORE
-            </a>
-          </div>
+          <Header showBookButton={false} showLogo={false} compact />
 
           <div style={styles.heroImageWrap}>
             <img src="/images/portfolio/feature-1.jpeg" alt="Portfolio hero portrait" style={styles.heroImage} />
             <div style={styles.heroOverlay} />
+            <Link href="/" style={styles.heroBrand} aria-label="Home">Lb</Link>
           </div>
 
           <div className="heroContent" style={styles.heroContent}>
@@ -168,15 +161,75 @@ export default function PortfolioPage() {
             gap: 36px;
             text-align: center;
           }
+
+          .footer-center {
+            display: none;
+          }
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 1024px) {
+          .portfolio-hero {
+            grid-template-columns: 1fr;
+          }
+
           .heroContent {
             padding: 0 20px 34px;
           }
 
+          .portfolioIntro,
+          .portfolioGridSection {
+            padding-left: 20px;
+            padding-right: 20px;
+          }
+
+          .portfolioIntro {
+            padding-top: 42px;
+            padding-bottom: 72px;
+          }
+
+          .portfolioGridSection {
+            padding-top: 44px;
+            padding-bottom: 76px;
+          }
+
+          .featuredRow {
+            grid-template-columns: 1fr;
+            gap: 18px;
+          }
+
+          .portfolio-grid {
+            gap: 14px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .introCopy {
+            max-width: 620px;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .portfolio-hero {
+            min-height: 82vh;
+          }
+
+          .heroContent {
+            position: absolute !important;
+            left: 18px;
+            right: 18px;
+            bottom: 18px;
+            padding: 0;
+            max-width: 72vw;
+            z-index: 4;
+            align-self: auto;
+          }
+
+          .heroContent {
+            padding: 0;
+          }
+
           .heroTitle {
-            font-size: clamp(54px, 14vw, 88px);
+            font-size: clamp(42px, 12vw, 74px);
+            line-height: 0.92;
           }
 
           .introCopy {
@@ -196,7 +249,28 @@ export default function PortfolioPage() {
 
           .footerColumnLeft,
           .footerColumnRight {
-            padding: 40px 20px;
+            padding: 36px 18px;
+          }
+
+          .portfolioIntro {
+            padding-top: 34px;
+            padding-bottom: 56px;
+          }
+
+          .gridSection {
+            padding-top: 24px;
+            padding-bottom: 64px;
+          }
+
+          .portfolioGridSection {
+            padding-top: 30px;
+            padding-bottom: 64px;
+          }
+
+          .heroBrand {
+            top: 18px;
+            left: 18px;
+            font-size: 46px;
           }
         }
       `}</style>
@@ -258,6 +332,19 @@ const styles = {
     position: 'absolute',
     inset: 0,
   },
+  heroBrand: {
+    position: 'absolute',
+    top: '24px',
+    left: '24px',
+    bottom: 'auto',
+    zIndex: 6,
+    fontFamily: "'Pinyon Script', cursive",
+    fontSize: '68px',
+    lineHeight: 0.8,
+    color: '#f7f2eb',
+    textDecoration: 'none',
+    textShadow: '0 3px 12px rgba(0,0,0,0.45)',
+  },
   heroImage: {
     width: '100%',
     height: '100%',
@@ -271,10 +358,13 @@ const styles = {
     background: 'linear-gradient(180deg, rgba(0,0,0,0.36), rgba(0,0,0,0.56))',
   },
   heroContent: {
-    position: 'relative',
+    position: 'absolute',
+    left: '36px',
+    right: '36px',
+    bottom: '48px',
     zIndex: 3,
-    alignSelf: 'end',
-    padding: '0 36px 48px',
+    padding: 0,
+    maxWidth: 760,
   },
   heroTitle: {
     fontSize: 'clamp(58px, 8vw, 128px)',

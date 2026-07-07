@@ -1,5 +1,7 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import Header from '../components/Header'
 
 const packages = [
   {
@@ -212,26 +214,18 @@ export default function BookPage() {
 
       <main style={styles.page}>
         <section className="book-page-hero" style={styles.hero}>
+          <Header showBookButton={false} showLogo={false} compact showShell={false} />
+
           <div className="book-page-visual" style={styles.visualPane} aria-hidden="true">
             <div style={styles.texture} />
             <img src="/images/hero2.jpg" alt="" style={styles.visualImage} />
             <div style={styles.visualShade} />
             <div style={styles.visualFogA} />
             <div style={styles.visualFogB} />
+            <Link href="/" style={styles.heroBrand} aria-label="Home">Lb</Link>
           </div>
 
           <div className="book-page-form" style={styles.formPane}>
-            <header className="topBar" style={styles.topBar}>
-              <a href="/" style={styles.brand}>Lb</a>
-              <a href="#footer" style={styles.explore}>
-                <span style={styles.exploreIcon} aria-hidden="true">
-                  <span style={styles.exploreIconBar} />
-                  <span style={styles.exploreIconBar} />
-                </span>
-                EXPLORE
-              </a>
-            </header>
-
             <div className="intro" style={styles.intro}>
               <p style={styles.kicker}>Private booking request</p>
               <h1 className="title" style={styles.title}>RESERVE</h1>
@@ -452,18 +446,23 @@ export default function BookPage() {
           }
 
           .book-page-visual {
-            min-height: 44vh;
+            min-height: 40vh;
           }
 
           .book-page-footer {
             grid-template-columns: 1fr;
-            gap: 36px;
+            gap: 28px;
             text-align: center;
+          }
+
+          .footer-center {
+            display: none;
           }
 
           .book-page-steps {
             grid-template-columns: 1fr;
             max-width: 100%;
+            gap: 14px;
           }
 
           .book-page-form .book-page-row,
@@ -476,6 +475,35 @@ export default function BookPage() {
           }
         }
 
+        @media (max-width: 1024px) {
+          .book-page-form {
+            padding: 22px 24px 34px;
+          }
+
+          .book-page-form .intro {
+            margin-top: 3vh;
+          }
+
+          .book-page-visual {
+            min-height: 36vh;
+          }
+
+          .book-page-form .steps {
+            max-width: 100%;
+            gap: 14px;
+          }
+
+          .book-page-hero {
+            min-height: 84vh;
+          }
+
+          .heroBrand {
+            left: 18px;
+            bottom: 18px;
+            font-size: 54px;
+          }
+        }
+
         @media (max-width: 640px) {
           .book-page-form {
             padding: 20px 18px 32px 18px !important;
@@ -483,7 +511,7 @@ export default function BookPage() {
 
           .book-page-form .topBar {
             padding: 0;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
           }
 
           .book-page-form .title {
@@ -497,8 +525,8 @@ export default function BookPage() {
           }
 
           .book-page-form .steps {
-            margin-top: 18px;
-            gap: 12px;
+            margin-top: 16px;
+            gap: 10px;
           }
 
           .book-page-form .selectionSummary {
@@ -531,12 +559,12 @@ export default function BookPage() {
           }
 
           .book-page-footer {
-            gap: 28px;
+            gap: 22px;
           }
 
           .book-page-footer .footerColumnLeft,
           .book-page-footer .footerColumnRight {
-            padding: 36px 20px;
+            padding: 32px 18px;
           }
         }
 
@@ -568,6 +596,14 @@ export default function BookPage() {
             grid-template-columns: 1fr 1fr;
             justify-content: center;
           }
+
+          .book-page-form .topBar {
+            padding-bottom: 10px;
+          }
+
+          .book-page-form .paymentCard {
+            padding: 18px 16px;
+          }
         }
       `}</style>
     </>
@@ -587,14 +623,30 @@ const styles = {
     color: '#f4f0ea',
   },
   hero: {
+    position: 'relative',
     display: 'grid',
-    gridTemplateColumns: '1.08fr 0.92fr',
+    gridTemplateColumns: '1.35fr 0.65fr',
     minHeight: '100vh',
+    alignItems: 'stretch',
   },
   visualPane: {
     position: 'relative',
     overflow: 'hidden',
     background: '#111',
+    minHeight: '100vh',
+  },
+  heroBrand: {
+    position: 'absolute',
+    top: '18px',
+    left: '18px',
+    bottom: 'auto',
+    zIndex: 6,
+    fontFamily: "'Pinyon Script', cursive",
+    fontSize: '68px',
+    lineHeight: 0.8,
+    color: '#f7f2eb',
+    textDecoration: 'none',
+    textShadow: '0 3px 12px rgba(0,0,0,0.45)',
   },
   texture: {
     position: 'absolute',
@@ -606,10 +658,13 @@ const styles = {
     mixBlendMode: 'screen',
   },
   visualImage: {
+    position: 'absolute',
+    inset: 0,
     width: '100%',
     height: '100%',
+    display: 'block',
     objectFit: 'cover',
-    objectPosition: 'center',
+    objectPosition: 'left top',
     filter: 'grayscale(1) contrast(1.05) brightness(0.75)',
   },
   visualShade: {
@@ -641,7 +696,7 @@ const styles = {
   formPane: {
     position: 'relative',
     background: '#0b0b0b',
-    padding: '28px 72px 40px 72px',
+    padding: '16px 72px 40px 72px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -682,7 +737,7 @@ const styles = {
   },
   intro: {
     maxWidth: 440,
-    marginTop: '8vh',
+    marginTop: 0,
   },
   steps: {
     display: 'grid',

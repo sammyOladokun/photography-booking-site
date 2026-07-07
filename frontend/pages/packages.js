@@ -1,4 +1,6 @@
 import Head from 'next/head'
+import Link from 'next/link'
+import Header from '../components/Header'
 
 const packageCards = [
   {
@@ -77,20 +79,14 @@ export default function PackagesPage() {
 
       <main style={styles.page}>
         <section className="packages-hero" style={styles.hero}>
-          <div className="topBar" style={styles.topBar}>
-            <a href="/" className="brand" style={styles.brand}>Lb</a>
-            <a href="/book" style={styles.explore}>
-              <span style={styles.exploreIcon} aria-hidden="true">
-                <span style={styles.exploreBar} />
-                <span style={styles.exploreBar} />
-              </span>
-              EXPLORE
-            </a>
-          </div>
+          <Header showBookButton={false} showLogo={false} compact />
 
           <div style={styles.heroImageWrap}>
             <img src="/images/packages/hero-closeup.jpeg" alt="Editorial close-up portrait" style={styles.heroImage} />
             <div style={styles.heroOverlay} />
+            <Link href="/" style={styles.heroBrand} aria-label="Home">
+              Lb
+            </Link>
           </div>
 
           <div className="heroContent" style={styles.heroContent}>
@@ -228,43 +224,87 @@ export default function PackagesPage() {
           }
 
           .heroContent {
-            padding: 0 24px 36px;
+            padding: 0 20px 34px;
           }
 
           .offerSection,
           .addOnSection {
-            padding-left: 24px;
-            padding-right: 24px;
+            padding-left: 20px;
+            padding-right: 20px;
           }
 
           .package-card {
-            padding: 34px 28px;
+            padding: 30px 24px;
             min-height: auto;
           }
 
           .offer-cards {
-            gap: 22px;
+            gap: 18px;
           }
 
           .add-on-layout {
             grid-template-columns: 1fr;
-            gap: 22px;
+            gap: 18px;
             min-height: auto;
           }
 
           .ctaSection {
-            min-height: 360px;
+            min-height: 320px;
           }
 
           .footerColumnLeft,
           .footerColumnRight {
-            padding: 44px 24px;
+            padding: 36px 20px;
           }
 
           .packages-footer {
             grid-template-columns: 1fr;
             text-align: center;
-            gap: 48px;
+            gap: 28px;
+          }
+
+          .footer-center {
+            display: none;
+          }
+        }
+
+        @media (max-width: 1024px) {
+          .packages-hero {
+            grid-template-columns: 1fr;
+          }
+
+          .heroContent {
+            padding: 0 20px 34px;
+          }
+
+          .offerSection,
+          .addOnSection {
+            padding-left: 20px;
+            padding-right: 20px;
+          }
+
+          .offerSection {
+            padding-top: 48px;
+            padding-bottom: 64px;
+          }
+
+          .addOnSection {
+            padding-top: 56px;
+            padding-bottom: 64px;
+          }
+
+          .offer-cards {
+            gap: 18px;
+          }
+
+          .package-card {
+            grid-template-columns: 1fr;
+            padding: 28px 22px;
+          }
+
+          .add-on-layout {
+            grid-template-columns: 1fr;
+            gap: 18px;
           }
         }
 
@@ -289,16 +329,31 @@ export default function PackagesPage() {
         }
 
         @media (max-width: 640px) {
+          .packages-hero {
+            min-height: 82vh;
+          }
+
+          .heroContent {
+            position: absolute !important;
+            left: 18px;
+            right: 18px;
+            bottom: 18px;
+            padding: 0;
+            max-width: 78vw;
+            z-index: 4;
+            align-self: auto;
+          }
+
           .packages-footer .footer-center {
             min-height: 280px;
           }
 
           .topBar {
-            padding: 18px 20px;
+            padding: 16px 18px;
           }
 
           .brand {
-            font-size: 62px;
+            font-size: 56px;
           }
 
           .offerEyebrow {
@@ -307,12 +362,12 @@ export default function PackagesPage() {
 
           .package-card {
             grid-template-columns: 1fr;
-            padding: 26px 20px;
+            padding: 22px 18px;
           }
 
           .packagePrice {
-            margin-top: 10px;
-            font-size: 28px;
+            margin-top: 8px;
+            font-size: 26px;
           }
 
           .packageSummary,
@@ -324,6 +379,17 @@ export default function PackagesPage() {
 
           .footerNav {
             justify-content: center;
+          }
+
+          .addOnSection {
+            padding-top: 44px;
+            padding-bottom: 56px;
+          }
+
+          .heroBrand {
+            top: 18px;
+            left: 18px;
+            font-size: 46px;
           }
         }
       `}</style>
@@ -410,11 +476,26 @@ const styles = {
     background:
       'linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.2) 30%, rgba(0,0,0,0.55) 100%)',
   },
+  heroBrand: {
+    position: 'absolute',
+    top: '24px',
+    left: '24px',
+    bottom: 'auto',
+    zIndex: 6,
+    fontFamily: "'Pinyon Script', cursive",
+    fontSize: '68px',
+    lineHeight: 1,
+    color: '#f8f3ec',
+    textDecoration: 'none',
+    textShadow: '0 8px 20px rgba(0, 0, 0, 0.38)',
+  },
   heroContent: {
-    position: 'relative',
+    position: 'absolute',
+    left: '36px',
+    right: '36px',
+    bottom: '48px',
     zIndex: 3,
-    alignSelf: 'end',
-    padding: '0 36px 48px',
+    padding: 0,
     maxWidth: 760,
   },
   heroKicker: {

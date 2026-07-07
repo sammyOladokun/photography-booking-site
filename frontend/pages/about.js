@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import Header from '../components/Header'
 
 const experienceSteps = [
   {
@@ -58,20 +59,12 @@ export default function AboutPage() {
 
       <main style={styles.page}>
         <section className="about-hero" style={styles.hero}>
-          <div style={styles.topBar}>
-            <Link href="/" style={styles.brand}>Lb</Link>
-            <a href="/packages" style={styles.explore}>
-              <span style={styles.exploreIcon} aria-hidden="true">
-                <span style={styles.exploreBar} />
-                <span style={styles.exploreBar} />
-              </span>
-              EXPLORE
-            </a>
-          </div>
+          <Header showBookButton={false} showLogo={false} compact />
 
           <div style={styles.heroImageWrap}>
             <img src="/images/about/hero-about.jpeg" alt="About hero portrait" style={styles.heroImage} />
             <div style={styles.heroOverlay} />
+            <Link href="/" style={styles.heroBrand} aria-label="Home">Lb</Link>
           </div>
 
           <div className="heroContent" style={styles.heroContent}>
@@ -250,18 +243,74 @@ export default function AboutPage() {
             text-align: center;
           }
 
+          .footer-center {
+            display: none;
+          }
+
           .cherishSection img {
             margin: 0 auto;
           }
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 1024px) {
+          .about-hero,
+          .bioSection,
+          .cherishSection {
+            grid-template-columns: 1fr;
+          }
+
           .heroContent {
             padding: 0 20px 34px;
           }
 
+          .bioSection,
+          .authenticSection,
+          .experienceSection,
+          .cherishSection {
+            padding-left: 20px;
+            padding-right: 20px;
+          }
+
+          .bioSection {
+            gap: 22px;
+            padding-top: 68px;
+            padding-bottom: 68px;
+          }
+
+          .experience-grid {
+            gap: 16px;
+          }
+
+          .cherishSection {
+            gap: 20px;
+            padding-top: 72px;
+            padding-bottom: 72px;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .about-hero {
+            min-height: 82vh;
+          }
+
+          .heroContent {
+            position: absolute !important;
+            left: 18px;
+            right: 18px;
+            bottom: 18px;
+            padding: 0;
+            max-width: 72vw;
+            z-index: 4;
+            align-self: auto;
+          }
+
+          .heroContent {
+            padding: 0;
+          }
+
           .heroTitle {
-            font-size: clamp(48px, 14vw, 88px);
+            font-size: clamp(42px, 12vw, 74px);
+            line-height: 0.92;
           }
 
           .bioTitle {
@@ -272,8 +321,17 @@ export default function AboutPage() {
             grid-template-columns: 1fr;
           }
 
+          .bioSection {
+            padding-top: 58px;
+            padding-bottom: 56px;
+          }
+
           .experienceCard {
             padding: 0 0 18px;
+          }
+
+          .experienceSection {
+            padding: 72px 18px;
           }
 
           .experienceButton {
@@ -281,16 +339,42 @@ export default function AboutPage() {
           }
 
           .cherishSection {
-            gap: 24px;
+            gap: 18px;
+            padding: 64px 18px;
+          }
+
+          .cherishLeft,
+          .cherishRight {
+            display: none;
           }
 
           .ctaSection {
-            min-height: 360px;
+            min-height: 280px;
           }
 
           .footerColumnLeft,
           .footerColumnRight {
-            padding: 40px 20px;
+            padding: 36px 18px;
+          }
+
+          .about-footer {
+            gap: 24px;
+          }
+
+          .about-footer {
+            grid-template-columns: 1fr;
+          }
+
+          .authenticCopy {
+            margin-top: -84px;
+            font-size: 16px;
+            line-height: 1.65;
+          }
+
+          .heroBrand {
+            top: 18px;
+            left: 18px;
+            font-size: 46px;
           }
         }
       `}</style>
@@ -351,6 +435,19 @@ const styles = {
     position: 'absolute',
     inset: 0,
   },
+  heroBrand: {
+    position: 'absolute',
+    top: '24px',
+    left: '24px',
+    bottom: 'auto',
+    zIndex: 6,
+    fontFamily: "'Pinyon Script', cursive",
+    fontSize: '68px',
+    lineHeight: 0.8,
+    color: '#f7f2eb',
+    textDecoration: 'none',
+    textShadow: '0 3px 12px rgba(0,0,0,0.45)',
+  },
   heroImage: {
     width: '100%',
     height: '100%',
@@ -364,10 +461,13 @@ const styles = {
     background: 'linear-gradient(180deg, rgba(0,0,0,0.48), rgba(0,0,0,0.56))',
   },
   heroContent: {
-    position: 'relative',
+    position: 'absolute',
+    left: '36px',
+    right: '36px',
+    bottom: '48px',
     zIndex: 3,
-    alignSelf: 'end',
-    padding: '0 36px 48px',
+    padding: 0,
+    maxWidth: 760,
   },
   heroTitle: {
     fontSize: 'clamp(58px, 8vw, 128px)',
