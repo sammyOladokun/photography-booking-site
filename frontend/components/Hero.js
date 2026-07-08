@@ -1,7 +1,7 @@
 export default function Hero({ photographer }) {
   return (
-    <section style={styles.section}>
-      <div style={styles.heroImages}>
+    <section style={styles.section} className="home-hero">
+      <div style={styles.heroImages} className="home-hero-images">
         <div style={styles.heroImageWrapperLeft}>
           <img src="/images/her01.jpg" alt="Portrait 1" style={styles.heroImageLeft} />
         </div>
@@ -13,7 +13,7 @@ export default function Hero({ photographer }) {
 
       <div style={styles.centerStripe} />
 
-      <h1 style={styles.heroTitle}>{photographer}</h1>
+      <h1 style={styles.heroTitle} className="hero-title">{photographer}</h1>
     </section>
   )
 }

@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Header from '../components/Header'
 
 const packages = [
@@ -66,8 +66,6 @@ const footerCards = [
   '/images/commercialframe.jpeg',
 ]
 
-const weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-
 function formatDisplayDate(value) {
   if (!value) return 'Select a date'
 
@@ -106,11 +104,15 @@ export default function BookPage() {
   const [isMobile, setIsMobile] = useState(false)
   const [isPackageMenuOpen, setIsPackageMenuOpen] = useState(false)
   const [isDateMenuOpen, setIsDateMenuOpen] = useState(false)
+  const [packageMenuPlacement, setPackageMenuPlacement] = useState('bottom')
+  const [dateMenuPlacement, setDateMenuPlacement] = useState('bottom')
+  const [packageMenuMaxHeight, setPackageMenuMaxHeight] = useState(340)
+  const [dateMenuMaxHeight, setDateMenuMaxHeight] = useState(420)
   const [calendarMonth, setCalendarMonth] = useState(() => getMonthStart(new Date()))
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
-  const [packageId, setPackageId] = useState(packages[0].id)
+  const [packageId, setPackageId] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedSlot, setSelectedSlot] = useState('')
   const [availability, setAvailability] = useState([])
@@ -122,9 +124,13 @@ export default function BookPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingAvailability, setIsLoadingAvailability] = useState(false)
   const [isValidatingPayment, setIsValidatingPayment] = useState(false)
+  const packageDropdownRef = useRef(null)
+  const dateDropdownRef = useRef(null)
+  const packageMenuRef = useRef(null)
+  const dateMenuRef = useRef(null)
 
   const selectedPackage = useMemo(
-    () => packages.find((item) => item.id === Number(packageId)) || packages[0],
+    () => packages.find((item) => item.id === Number(packageId)) || null,
     [packageId],
   )
 
@@ -146,6 +152,95 @@ export default function BookPage() {
     mediaQuery.addListener(handleChange)
     return () => mediaQuery.removeListener(handleChange)
   }, [])
+
+  useEffect(() => {
+    function handlePointerDown(event) {
+      if (packageDropdownRef.current && !packageDropdownRef.current.contains(event.target)) {
+        setIsPackageMenuOpen(false)
+      }
+
+      if (dateDropdownRef.current && !dateDropdownRef.current.contains(event.target)) {
+        setIsDateMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('touchstart', handlePointerDown)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('touchstart', handlePointerDown)
+    }
+  }, [])
+
+  useEffect(() => {
+    function updatePopoverPlacement() {
+      const viewportPadding = 16
+      const anchorGap = 10
+
+      const packageAnchor = packageDropdownRef.current
+      const packagePanel = packageMenuRef.current
+      if (isPackageMenuOpen && packageAnchor && packagePanel) {
+        const anchorRect = packageAnchor.getBoundingClientRect()
+        const panelHeight = packagePanel.scrollHeight
+        const spaceBelow = window.innerHeight - anchorRect.bottom - viewportPadding - anchorGap
+        const spaceAbove = anchorRect.top - viewportPadding - anchorGap
+        const shouldOpenUp = spaceBelow < panelHeight && spaceAbove > spaceBelow
+
+        setPackageMenuPlacement(shouldOpenUp ? 'top' : 'bottom')
+        setPackageMenuMaxHeight(Math.max(180, shouldOpenUp ? spaceAbove : spaceBelow))
+      }
+
+      const dateAnchor = dateDropdownRef.current
+      const datePanel = dateMenuRef.current
+      if (isDateMenuOpen && dateAnchor && datePanel) {
+        const anchorRect = dateAnchor.getBoundingClientRect()
+        const panelHeight = datePanel.scrollHeight
+        const spaceBelow = window.innerHeight - anchorRect.bottom - viewportPadding - anchorGap
+        const spaceAbove = anchorRect.top - viewportPadding - anchorGap
+        const shouldOpenUp = spaceBelow < panelHeight && spaceAbove > spaceBelow
+
+        setDateMenuPlacement(shouldOpenUp ? 'top' : 'bottom')
+        setDateMenuMaxHeight(Math.max(220, shouldOpenUp ? spaceAbove : spaceBelow))
+      }
+    }
+
+    if (!isPackageMenuOpen && !isDateMenuOpen) return undefined
+
+    const frame = window.requestAnimationFrame(updatePopoverPlacement)
+    window.addEventListener('resize', updatePopoverPlacement)
+    window.addEventListener('scroll', updatePopoverPlacement, true)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('resize', updatePopoverPlacement)
+      window.removeEventListener('scroll', updatePopoverPlacement, true)
+    }
+  }, [isDateMenuOpen, isPackageMenuOpen, calendarMonth, selectedDate])
+
+  useEffect(() => {
+    if (!isMobile) return
+
+    if (packageId) {
+      setIsPackageMenuOpen(false)
+    }
+
+    if (selectedDate) {
+      setIsDateMenuOpen(false)
+    }
+  }, [isMobile, packageId, selectedDate])
+
+  useEffect(() => {
+    if (packageId) {
+      setIsPackageMenuOpen(false)
+    }
+  }, [packageId])
+
+  useEffect(() => {
+    if (selectedDate) {
+      setIsDateMenuOpen(false)
+    }
+  }, [selectedDate])
 
   useEffect(() => {
     if (selectedDate) {
@@ -172,7 +267,7 @@ export default function BookPage() {
 
   useEffect(() => {
     async function loadAvailability() {
-      if (!selectedDate) return
+      if (!selectedDate || !packageId) return
 
       setIsLoadingAvailability(true)
       setAvailabilityMessage('Checking availability...')
@@ -204,6 +299,11 @@ export default function BookPage() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+    if (!packageId) {
+      setStatus('Please choose a package before submitting.')
+      return
+    }
+
     if (!selectedDate || !selectedSlot) {
       setStatus('Please choose an available date and time before submitting.')
       return
@@ -223,7 +323,7 @@ export default function BookPage() {
           email,
           packageId: Number(packageId),
           startAt: selectedSlot,
-          notes: `Package: ${selectedPackage.title}\nDate: ${selectedDate}\n\n${message}`,
+          notes: `Package: ${selectedPackage?.title || 'Unselected'}\nDate: ${selectedDate}\n\n${message}`,
         }),
       })
 
@@ -239,7 +339,7 @@ export default function BookPage() {
       setFirstName('')
       setLastName('')
       setEmail('')
-      setPackageId(packages[0].id)
+      setPackageId('')
       setSelectedDate('')
       setSelectedSlot('')
       setMessage('')
@@ -341,15 +441,15 @@ export default function BookPage() {
               >
                 <div>
                   <p style={styles.selectionLabel}>PACKAGE</p>
-                  <p style={styles.selectionValue}>{selectedPackage.title}</p>
+                  <p style={styles.selectionValue}>{selectedPackage ? selectedPackage.title : 'Select a package'}</p>
                 </div>
                 <div>
                   <p style={styles.selectionLabel}>DURATION</p>
-                  <p style={styles.selectionValue}>{selectedPackage.duration} HOURS</p>
+                  <p style={styles.selectionValue}>{selectedPackage ? `${selectedPackage.duration} HOURS` : '—'}</p>
                 </div>
                 <div>
                   <p style={styles.selectionLabel}>PRICE</p>
-                  <p style={styles.selectionValue}>{selectedPackage.price}</p>
+                  <p style={styles.selectionValue}>{selectedPackage ? selectedPackage.price : '—'}</p>
                 </div>
               </div>
 
@@ -388,23 +488,36 @@ export default function BookPage() {
 
               <label style={styles.field}>
                 <span style={styles.label}>PACKAGE</span>
-                <div style={styles.dropdownWrap}>
+                <div ref={packageDropdownRef} style={styles.dropdownWrap}>
                   <button
                     type="button"
                     style={styles.dropdownButton}
-                    onClick={() => setIsPackageMenuOpen((current) => !current)}
+                    onClick={() => {
+                      setIsDateMenuOpen(false)
+                      setIsPackageMenuOpen((current) => !current)
+                    }}
                     aria-haspopup="listbox"
                     aria-expanded={isPackageMenuOpen}
                   >
                     <span style={styles.dropdownButtonMain}>
-                      <span style={styles.dropdownButtonTitle}>{selectedPackage.title}</span>
-                      <span style={styles.dropdownButtonMeta}>{selectedPackage.duration} HOURS · {selectedPackage.price}</span>
+                      <span style={styles.dropdownButtonTitle}>
+                        {selectedPackage ? selectedPackage.title : 'Select a package'}
+                      </span>
                     </span>
                     <span style={styles.dropdownChevron}>{isPackageMenuOpen ? '−' : '+'}</span>
                   </button>
 
                   {isPackageMenuOpen && (
-                    <div role="listbox" aria-label="Package options" style={styles.dropdownMenu}>
+                    <div
+                      ref={packageMenuRef}
+                      role="listbox"
+                      aria-label="Package options"
+                      style={{
+                        ...styles.dropdownMenu,
+                        ...(packageMenuPlacement === 'top' ? styles.dropdownMenuTop : styles.dropdownMenuBottom),
+                        maxHeight: packageMenuMaxHeight,
+                      }}
+                    >
                       {packages.map((option) => (
                         <button
                           key={option.id}
@@ -421,10 +534,6 @@ export default function BookPage() {
                           }}
                         >
                           <span style={styles.dropdownOptionTitle}>{option.title}</span>
-                          <span style={styles.dropdownOptionMeta}>
-                            {option.duration} HOURS · {option.price}
-                          </span>
-                          <span style={styles.dropdownOptionCopy}>{option.summary}</span>
                         </button>
                       ))}
                     </div>
@@ -435,23 +544,34 @@ export default function BookPage() {
               <div className="calendar-grid" style={styles.calendarGrid}>
                 <label style={styles.field}>
                   <span style={styles.label}>PREFERRED DATE</span>
-                  <div style={styles.dropdownWrap}>
+                  <div ref={dateDropdownRef} style={styles.dropdownWrap}>
                     <button
                       type="button"
                       style={styles.dropdownButton}
-                      onClick={() => setIsDateMenuOpen((current) => !current)}
+                      onClick={() => {
+                        setIsPackageMenuOpen(false)
+                        setIsDateMenuOpen((current) => !current)
+                      }}
                       aria-haspopup="dialog"
                       aria-expanded={isDateMenuOpen}
                     >
                       <span style={styles.dropdownButtonMain}>
                         <span style={styles.dropdownButtonTitle}>{formattedSelectedDate}</span>
-                        <span style={styles.dropdownButtonMeta}>Availability checks update after selection</span>
                       </span>
                       <span style={styles.dropdownChevron}>{isDateMenuOpen ? '−' : '+'}</span>
                     </button>
 
                     {isDateMenuOpen && (
-                      <div role="dialog" aria-label="Date picker" style={styles.calendarPopover}>
+                      <div
+                        ref={dateMenuRef}
+                        role="dialog"
+                        aria-label="Date picker"
+                        style={{
+                          ...styles.calendarPopover,
+                          ...(dateMenuPlacement === 'top' ? styles.calendarPopoverTop : styles.calendarPopoverBottom),
+                          maxHeight: dateMenuMaxHeight,
+                        }}
+                      >
                         <div style={styles.calendarHeader}>
                           <button type="button" style={styles.calendarNavButton} onClick={() => moveCalendarMonth(-1)}>
                             ←
@@ -465,7 +585,7 @@ export default function BookPage() {
                         </div>
 
                         <div style={styles.weekdayRow}>
-                          {weekdayLabels.map((label) => (
+                          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((label) => (
                             <span key={label} style={styles.weekdayLabel}>
                               {label}
                             </span>
@@ -1092,9 +1212,171 @@ const styles = {
   },
   calendarGrid: {
     display: 'grid',
-    gridTemplateColumns: '0.9fr 1.1fr',
-    gap: 28,
+    gridTemplateColumns: '1fr',
+    gap: 18,
     alignItems: 'start',
+  },
+  dropdownWrap: {
+    position: 'relative',
+    width: '100%',
+  },
+  dropdownButton: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 18,
+    background: 'transparent',
+    color: '#f4f0ea',
+    border: 'none',
+    borderBottom: '1px solid rgba(255,255,255,0.86)',
+    borderRadius: 0,
+    padding: '10px 0 16px',
+    textAlign: 'left',
+  },
+  dropdownButtonMain: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+    minWidth: 0,
+  },
+  dropdownButtonTitle: {
+    fontSize: 16,
+    lineHeight: 1.3,
+    color: '#f4f0ea',
+  },
+  dropdownChevron: {
+    fontSize: 22,
+    lineHeight: 1,
+    color: '#f4f0ea',
+    flexShrink: 0,
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: 'calc(100% + 10px)',
+    left: 0,
+    right: 0,
+    zIndex: 20,
+    background: '#141414',
+    border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: 18,
+    padding: 8,
+    boxShadow: '0 24px 48px rgba(0,0,0,0.35)',
+    display: 'grid',
+    gap: 8,
+    overflowY: 'auto',
+    overscrollBehavior: 'contain',
+  },
+  dropdownMenuTop: {
+    top: 'auto',
+    bottom: 'calc(100% + 10px)',
+  },
+  dropdownMenuBottom: {
+    top: 'calc(100% + 10px)',
+    bottom: 'auto',
+  },
+  dropdownOption: {
+    width: '100%',
+    textAlign: 'left',
+    background: 'rgba(255,255,255,0.03)',
+    color: '#f4f0ea',
+    border: '1px solid transparent',
+    borderRadius: 12,
+    padding: '12px 14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  dropdownOptionSelected: {
+    background: 'rgba(244,240,234,0.12)',
+    borderColor: 'rgba(244,240,234,0.22)',
+  },
+  dropdownOptionTitle: {
+    fontSize: 14,
+    letterSpacing: 0.3,
+  },
+  calendarPopover: {
+    position: 'absolute',
+    top: 'calc(100% + 10px)',
+    left: 0,
+    right: 0,
+    zIndex: 20,
+    background: '#141414',
+    border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: 14,
+    padding: 10,
+    boxShadow: '0 24px 48px rgba(0,0,0,0.35)',
+    overflowY: 'auto',
+    overscrollBehavior: 'contain',
+  },
+  calendarPopoverTop: {
+    top: 'auto',
+    bottom: 'calc(100% + 10px)',
+  },
+  calendarPopoverBottom: {
+    top: 'calc(100% + 10px)',
+    bottom: 'auto',
+  },
+  calendarHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 8,
+  },
+  calendarNavButton: {
+    width: 30,
+    height: 30,
+    borderRadius: '50%',
+    border: '1px solid rgba(255,255,255,0.16)',
+    background: 'rgba(255,255,255,0.04)',
+    color: '#f4f0ea',
+    fontSize: 15,
+  },
+  calendarMonthLabel: {
+    fontSize: 12,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: '#f4f0ea',
+  },
+  weekdayRow: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+    gap: 3,
+    marginBottom: 4,
+  },
+  weekdayLabel: {
+    textAlign: 'center',
+    fontSize: 8,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    color: '#b7ada1',
+  },
+  calendarGridMonth: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+    gap: 3,
+  },
+  calendarBlank: {
+    minHeight: 28,
+  },
+  calendarDay: {
+    minHeight: 28,
+    borderRadius: 8,
+    border: '1px solid rgba(255,255,255,0.12)',
+    background: 'rgba(255,255,255,0.03)',
+    color: '#f4f0ea',
+    fontSize: 11,
+  },
+  calendarDayDisabled: {
+    opacity: 0.28,
+    cursor: 'not-allowed',
+  },
+  calendarDaySelected: {
+    background: '#f4f0ea',
+    color: '#0b0b0b',
+    borderColor: '#f4f0ea',
   },
   field: {
     display: 'grid',

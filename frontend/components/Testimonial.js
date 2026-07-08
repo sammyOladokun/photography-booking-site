@@ -1,8 +1,8 @@
 export default function Testimonial({ quote, author }) {
   return (
-    <section style={styles.section}>
-      <div style={styles.container}>
-        <div style={styles.imageLeftWrapper}>
+    <section style={styles.section} className="home-testimonial">
+      <div style={styles.container} className="home-testimonial-grid">
+        <div style={styles.imageLeftWrapper} className="home-testimonial-image">
           <img
             src="/images/testimonial.jpg"
             alt="Testimonial image"
@@ -10,7 +10,7 @@ export default function Testimonial({ quote, author }) {
             onError={(e) => e.target.style.display = 'none'}
           />
         </div>
-        <div style={styles.content}>
+        <div style={styles.content} className="home-testimonial-content">
           <p style={styles.quote}>"{quote}"</p>
           <p style={styles.author}>{author}</p>
         </div>

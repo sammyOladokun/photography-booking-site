@@ -7,6 +7,7 @@ const defaultMenuItems = [
   { label: 'PORTFOLIO', href: '/portfolio' },
   { label: 'PACKAGES', href: '/packages' },
   { label: 'BOOKING', href: '/book' },
+  { label: 'LOGIN', href: '/login' },
 ]
 
 export default function Header({
@@ -134,8 +135,20 @@ const styles = {
   },
   leftSlot: { width: 48 },
   leftSlotCompact: { width: 32 },
-  rightSlot: { width: 48, display: 'flex', justifyContent: 'flex-end', gap: 8 },
-  rightSlotCompact: { width: 32, display: 'flex', justifyContent: 'flex-end', gap: 6 },
+  rightSlot: {
+    minWidth: 112,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  rightSlotCompact: {
+    minWidth: 92,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 6,
+  },
   logo: {
     fontFamily: "'Pinyon Script', cursive",
     fontSize: 74,
@@ -165,10 +178,21 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.26)',
     backdropFilter: 'blur(8px)',
     color: '#fff',
+    padding: '12px 22px',
+    minWidth: 96,
+    minHeight: 42,
+    borderRadius: 999,
+    fontSize: 13,
+    letterSpacing: 1.6,
+    lineHeight: 1,
+    textDecoration: 'none',
   },
   bookBtnCompact: {
-    padding: '8px 12px',
+    padding: '10px 16px',
+    minWidth: 84,
+    minHeight: 38,
     fontSize: 11,
+    letterSpacing: 1.2,
   },
   menuBtn: {
     background: 'transparent',

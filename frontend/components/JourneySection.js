@@ -1,16 +1,16 @@
 export default function JourneySection() {
   return (
-    <section style={styles.section}>
-      <div style={styles.container}>
-        <div style={styles.imageLeftWrapper}>
+    <section style={styles.section} className="home-journey">
+      <div style={styles.container} className="home-journey-grid">
+        <div style={styles.imageLeftWrapper} className="home-journey-image home-journey-image-left">
           <img
-            src="/images/journey-left.jpg"
-            alt="Journey left image"
+            src="/images/portfolio/feature-1.jpeg"
+            alt="Featured fashion work"
             style={styles.imageContent}
             onError={(e) => e.target.style.display = 'none'}
           />
         </div>
-        <div style={styles.center}>
+        <div style={styles.center} className="home-journey-center">
           <p style={styles.decor}>Continue the</p>
           <h2 style={{...styles.title, fontFamily: "'Pinyon Script', cursive"}}>journey</h2>
           <div style={styles.links}>
@@ -19,10 +19,10 @@ export default function JourneySection() {
             <a href="#book" style={styles.link}>BOOK A SESSION</a>
           </div>
         </div>
-        <div style={styles.imageRightWrapper}>
+        <div style={styles.imageRightWrapper} className="home-journey-image home-journey-image-right">
           <img
-            src="/images/journey-right.jpg"
-            alt="Journey right image"
+            src="/images/portfolio/feature-2.jpeg"
+            alt="Featured portrait work"
             style={styles.imageContent}
             onError={(e) => e.target.style.display = 'none'}
           />
