@@ -2,30 +2,44 @@ export default function JourneySection() {
   return (
     <section style={styles.section} className="home-journey">
       <div style={styles.container} className="home-journey-grid">
-        <div style={styles.imageLeftWrapper} className="home-journey-image home-journey-image-left">
-          <img
-            src="/images/portfolio/feature-1.jpeg"
-            alt="Featured fashion work"
-            style={styles.imageContent}
-            onError={(e) => e.target.style.display = 'none'}
-          />
-        </div>
-        <div style={styles.center} className="home-journey-center">
-          <p style={styles.decor}>Continue the</p>
-          <h2 style={{...styles.title, fontFamily: "'Pinyon Script', cursive"}}>journey</h2>
-          <div style={styles.links}>
-            <a href="#gallery" style={styles.link}>SEE THE GALLERY</a>
-            <a href="#investment" style={styles.link}>THE INVESTMENT</a>
-            <a href="#book" style={styles.link}>BOOK A SESSION</a>
+        <div style={styles.sideColumn} className="home-journey-left">
+          <div style={styles.imageLeftWrapper} className="home-journey-image home-journey-image-left">
+            <img
+              src="/images/portfolio/grid-2.jpeg"
+              alt="Featured fashion work"
+              style={styles.imageContent}
+              onError={(e) => e.target.style.display = 'none'}
+            />
           </div>
+          <p style={styles.scriptNote}>high-end visuals for you</p>
         </div>
-        <div style={styles.imageRightWrapper} className="home-journey-image home-journey-image-right">
+
+        <div style={styles.center} className="home-journey-center">
+          <p style={styles.kicker}>gallery highlights</p>
+          <h2 style={styles.title}>THE THINGS I CHERISH</h2>
+          <div style={styles.centerImageWrapper}>
+            <img
+              src="/images/packages/package-branding.jpeg"
+              alt="Featured portrait work"
+              style={styles.centerImage}
+              onError={(e) => e.target.style.display = 'none'}
+            />
+          </div>
+          <p style={styles.centerCopy}>
+            A refined portrait-led approach for creatives, founders, and brands who want imagery that feels elegant and alive.
+          </p>
+        </div>
+
+        <div style={styles.sideColumn} className="home-journey-right">
+          <p style={{ ...styles.scriptNote, ...styles.scriptNoteRight }}>as are fleeting for all</p>
+          <div style={styles.imageRightWrapper} className="home-journey-image home-journey-image-right">
           <img
-            src="/images/portfolio/feature-2.jpeg"
-            alt="Featured portrait work"
-            style={styles.imageContent}
-            onError={(e) => e.target.style.display = 'none'}
-          />
+              src="/images/portfolio/feature-1.jpeg"
+              alt="Featured portrait work"
+              style={styles.imageContent}
+              onError={(e) => e.target.style.display = 'none'}
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -34,23 +48,34 @@ export default function JourneySection() {
 
 const styles = {
   section: {
-    background: '#1a1a1a',
-    color: 'white',
-    padding: '80px 0',
+    background: '#f4f1ea',
+    color: '#1a1a1a',
+    padding: '84px 0',
   },
   container: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
-    gap: 0,
-    alignItems: 'stretch',
+    gap: 26,
+    alignItems: 'start',
+    maxWidth: 1280,
+    margin: '0 auto',
+  },
+  sideColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    minHeight: 500,
+    gap: 18,
   },
   imageLeftWrapper: {
     overflow: 'hidden',
-    background: '#333',
+    background: '#ddd',
+    minHeight: 180,
   },
   imageRightWrapper: {
     overflow: 'hidden',
-    background: '#333',
+    background: '#ddd',
+    minHeight: 200,
   },
   imageContent: {
     width: '100%',
@@ -65,28 +90,53 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '60px 40px',
+    padding: '8px 12px',
+    minHeight: 500,
   },
-  decor: {
-    fontSize: 14,
-    letterSpacing: 1,
+  kicker: {
+    fontSize: 11,
+    letterSpacing: 3,
     textTransform: 'uppercase',
-    marginBottom: 8,
+    color: '#8d8479',
+    marginBottom: 14,
   },
   title: {
-    fontSize: 48,
+    fontSize: 'clamp(34px, 3.4vw, 54px)',
     fontWeight: 300,
-    marginBottom: 40,
+    lineHeight: 1,
+    marginBottom: 26,
   },
-  links: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 16,
+  centerImageWrapper: {
+    width: '78%',
+    maxWidth: 360,
+    minHeight: 280,
+    overflow: 'hidden',
+    background: '#ddd',
+    marginBottom: 18,
   },
-  link: {
-    fontSize: 12,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    textDecoration: 'underline',
+  centerImage: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    objectPosition: 'center',
+    display: 'block',
+  },
+  centerCopy: {
+    maxWidth: 360,
+    fontSize: 14,
+    lineHeight: 1.7,
+    color: '#4f473f',
+  },
+  scriptNote: {
+    fontFamily: "'Pinyon Script', cursive",
+    fontSize: 28,
+    lineHeight: 1,
+    color: '#6c6259',
+    textAlign: 'left',
+    marginTop: 6,
+  },
+  scriptNoteRight: {
+    textAlign: 'right',
+    alignSelf: 'flex-end',
   },
 }

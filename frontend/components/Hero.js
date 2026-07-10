@@ -11,8 +11,6 @@ export default function Hero({ photographer }) {
         <div style={styles.imageOverlay} />
       </div>
 
-      <div style={styles.centerStripe} />
-
       <h1 style={styles.heroTitle} className="hero-title">{photographer}</h1>
     </section>
   )
@@ -71,17 +69,6 @@ const styles = {
     bottom: 0,
     zIndex: 4,
     background: 'rgba(0,0,0,0.06)'
-  },
-  centerStripe: {
-    position: 'absolute',
-    left: '50%',
-    top: 0,
-    bottom: 0,
-    width: 56,
-    transform: 'translateX(-50%)',
-    backgroundColor: 'rgba(230,230,230,0.12)',
-    zIndex: 6,
-    pointerEvents: 'none',
   },
   heroTitle: {
     position: 'absolute',
